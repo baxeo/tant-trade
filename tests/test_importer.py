@@ -7,6 +7,8 @@ from app.services.importer import (
     normalize_domain,
     normalize_name,
 )
+from app.services.scraper import extract_lead
+from bs4 import BeautifulSoup
 
 
 def test_normalize_name():
@@ -48,3 +50,21 @@ def test_duplicate_match_does_not_cross_country_boundary():
     company = Company(name="Acme Snacks Ltd", normalized_name="acme snacks ltd", country="Tanzania")
 
     assert find_duplicate_company("Acme Snacks Limited", "Kenya", None, [company]) is None
+
+
+def test_scraper_extracts_public_card_details():
+        html = """
+        <article class="company-card">
+            <h2>East Africa Snack Co.</h2>
+            <p>Importer | buying@snacks.example | +254 700 000 111</p>
+            <a href="https://snacks.example">Company website</a>
+        </article>
+        """
+        card = BeautifulSoup(html, "html.parser").select_one("article")
+
+        lead = extract_lead(card, "https://directory.example/buyers", "h1, h2, h3, h4")
+
+        assert lead["name"] == "East Africa Snack Co."
+        assert lead["email"] == "buying@snacks.example"
+        assert lead["website"] == "https://snacks.example"
+        assert lead["lead_score"] == 70

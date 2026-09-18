@@ -57,4 +57,6 @@ This first slice intentionally does not include authentication, orders, churn mo
 6. Select a buyer to inspect contact details and the score explanation.
 7. Use **Download filtered buyers** to export the current table as CSV.
 
+To discover new buyers, use **Find public buyers** in the sidebar. Paste a public exhibitor, association, or directory URL and click **Preview scraped leads**. Review the results, download the CSV, and upload that reviewed file through the normal importer. The scraper checks `robots.txt`, uses a polite user agent, and does not access login-gated pages, bypass CAPTCHAs, or evade blocks. Enable **Render JavaScript** only for a public page that genuinely requires browser rendering; Selenium must be installed in the deployment environment.
+
 The sample file is fictional and safe for testing. It includes high, medium, low, incomplete, and near-duplicate records. Uploading it twice demonstrates the duplicate review warnings.

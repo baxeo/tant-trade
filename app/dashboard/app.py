@@ -40,6 +40,41 @@ with st.sidebar:
             detail = response.text
         st.error(f"Import failed: {detail}")
 
+    st.subheader("Find public buyers")
+    scrape_url = st.text_input("Public directory URL", placeholder="https://example.org/exhibitors")
+    render_javascript = st.checkbox("Render JavaScript", help="Use only when the public page is empty without browser rendering.")
+    if st.button("Preview scraped leads", use_container_width=True, disabled=not scrape_url):
+        with st.spinner("Checking robots.txt and reading the public page..."):
+            scrape_response = requests.post(
+                f"{API_URL}/scrape/preview",
+                json={"url": scrape_url, "render_javascript": render_javascript},
+                timeout=90,
+            )
+        if scrape_response.ok:
+            st.session_state["scrape_preview"] = scrape_response.json()
+        else:
+            try:
+                detail = scrape_response.json().get("detail", scrape_response.text)
+            except ValueError:
+                detail = scrape_response.text
+            st.error(f"Scrape failed: {detail}")
+
+    if st.session_state.get("scrape_preview"):
+        preview = st.session_state["scrape_preview"]
+        st.caption(f"Preview from {preview['source_url']}: {len(preview['leads'])} leads found")
+        if preview["warnings"]:
+            st.warning("\n".join(preview["warnings"]))
+        if preview["leads"]:
+            scraped_table = pd.DataFrame(preview["leads"])
+            st.dataframe(scraped_table, use_container_width=True, hide_index=True)
+            st.download_button(
+                "Download scraped leads for review",
+                data=scraped_table.drop(columns=["source_url", "lead_score"], errors="ignore").to_csv(index=False).encode("utf-8"),
+                file_name="baxeo-tan-trade-scraped-leads.csv",
+                mime="text/csv",
+                use_container_width=True,
+            )
+
 st.subheader("Buyer pipeline")
 filter_column, country_column, score_column, limit_column = st.columns([2, 1, 1, 1])
 search = filter_column.text_input("Search", placeholder="Company name")

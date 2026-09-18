@@ -42,3 +42,30 @@ class LeadScoreRequest(BaseModel):
 class LeadScoreResponse(BaseModel):
     score: float
     components: dict[str, Any]
+
+
+class ScrapeRequest(BaseModel):
+    url: str
+    render_javascript: bool = False
+    max_results: int = Field(default=50, ge=1, le=200)
+    item_selector: str = "article, li, .company, .company-card, .listing, [class*=company], [class*=listing]"
+    name_selector: str = "h1, h2, h3, h4, .name, .company-name, [class*=title]"
+
+
+class ScrapedLead(BaseModel):
+    name: str
+    country: str | None = None
+    city: str | None = None
+    website: str | None = None
+    email: str | None = None
+    phone: str | None = None
+    buyer_type: str | None = None
+    source_url: str
+    lead_score: float
+
+
+class ScrapeResponse(BaseModel):
+    source_url: str
+    render_javascript: bool
+    leads: list[ScrapedLead]
+    warnings: list[str] = []

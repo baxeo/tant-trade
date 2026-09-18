@@ -1,14 +1,16 @@
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
+import requests
 from fastapi import Depends, FastAPI, File, HTTPException, UploadFile
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.db import get_db, init_db
 from app.core.models import Company
-from app.schemas import CompanyRead, ImportResult, LeadScoreRequest, LeadScoreResponse
+from app.schemas import CompanyRead, ImportResult, LeadScoreRequest, LeadScoreResponse, ScrapeRequest, ScrapeResponse, ScrapedLead
 from app.services.importer import calculate_lead_score_breakdown, import_excel, map_columns
+from app.services.scraper import scrape_public_buyers
 
 app = FastAPI(title="Cashew Market Intelligence API", version="0.1.0")
 
@@ -54,6 +56,20 @@ def score_lead(payload: LeadScoreRequest) -> LeadScoreResponse:
     mapping = map_columns(raw.keys())
     breakdown = calculate_lead_score_breakdown(raw, mapping)
     return LeadScoreResponse(score=breakdown["score"], components=breakdown)
+
+
+@app.post("/scrape/preview", response_model=ScrapeResponse)
+def scrape_preview(payload: ScrapeRequest) -> ScrapeResponse:
+    try:
+        result = scrape_public_buyers(**payload.model_dump())
+    except (ValueError, requests.RequestException) as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+    return ScrapeResponse(
+        source_url=payload.url,
+        render_javascript=payload.render_javascript,
+        leads=[ScrapedLead(**lead) for lead in result.leads],
+        warnings=result.warnings,
+    )
 
 
 @app.post("/imports/excel", response_model=ImportResult)
