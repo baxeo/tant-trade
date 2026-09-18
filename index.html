@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>TAN-TRADE Buyer Intelligence</title>
+  <title>BAXEO TAN-TRADE Buyer Intelligence</title>
   <style>
     :root { --ink:#17211b; --muted:#68746d; --line:#d9e1db; --paper:#f6f8f4; --white:#fff; --green:#16734a; --amber:#d9822b; }
     * { box-sizing:border-box; }
@@ -44,7 +44,7 @@
   </style>
 </head>
 <body>
-  <header><div class="brand"><span class="mark">↗</span><span>TAN-TRADE</span></div><span id="status" class="status">Connecting...</span></header>
+  <header><div class="brand"><span class="mark">↗</span><span>BAXEO TAN-TRADE</span></div><span id="status" class="status">Connecting...</span></header>
   <main>
     <section class="intro"><div><h1>Know which buyer deserves your next call.</h1></div><p>A focused view of your cashew buyer pipeline, ranked by the signals already in your data.</p></section>
     <section class="toolbar">
@@ -72,7 +72,7 @@
     function render() { const rows=filtered(); $('buyers').textContent=rows.length; $('priority').textContent=rows.filter(c=>c.lead_score>=75).length; $('average').textContent=rows.length ? Math.round(rows.reduce((a,c)=>a+c.lead_score,0)/rows.length) : 0; $('countries').textContent=new Set(rows.map(c=>c.country).filter(Boolean)).size; if(!rows.length){$('content').className='empty';$('content').textContent='No buyers match these filters.';return;} $('content').className=''; $('content').innerHTML='<table><thead><tr><th>Priority</th><th>Company</th><th>Country</th><th>Buyer type</th><th>Contact</th><th>Score</th></tr></thead><tbody>'+rows.map(c=>{const p=c.lead_score>=75?'high':c.lead_score>=50?'medium':'low';return `<tr><td><span class="badge ${p}">${p[0].toUpperCase()+p.slice(1)}</span></td><td><strong>${escapeHtml(c.name)}</strong></td><td>${escapeHtml(c.country||'—')}</td><td>${escapeHtml(c.buyer_type||'—')}</td><td>${escapeHtml(c.email||'—')}</td><td><strong>${Math.round(c.lead_score)}/100</strong></td></tr>`}).join('')+'</tbody></table>'; }
     function escapeHtml(value){return String(value).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
     async function load(){ $('status').textContent='Loading...'; try{const response=await fetch('/api/leads?limit=500');if(!response.ok)throw new Error('API returned '+response.status);state.companies=await response.json();$('status').textContent='Live data connected';render();}catch(error){state.companies=demoCompanies;$('status').textContent='Demo data — API not connected';render();} }
-    $('refresh').onclick=load; ['search','country','minimum'].forEach(id=>$(id).oninput=render); $('download').onclick=()=>{const rows=filtered();const csv=['name,country,buyer_type,email,lead_score',...rows.map(c=>[c.name,c.country||'',c.buyer_type||'',c.email||'',c.lead_score].map(v=>'"'+String(v).replaceAll('"','""')+'"').join(','))].join('\n');const link=document.createElement('a');link.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));link.download='tan-trade-buyers.csv';link.click();}; load();
+    $('refresh').onclick=load; ['search','country','minimum'].forEach(id=>$(id).oninput=render); $('download').onclick=()=>{const rows=filtered();const csv=['name,country,buyer_type,email,lead_score',...rows.map(c=>[c.name,c.country||'',c.buyer_type||'',c.email||'',c.lead_score].map(v=>'"'+String(v).replaceAll('"','""')+'"').join(','))].join('\n');const link=document.createElement('a');link.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));link.download='baxeo-tan-trade-buyers.csv';link.click();}; load();
   </script>
 </body>
 </html>

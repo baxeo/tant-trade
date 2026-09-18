@@ -6,8 +6,8 @@ import streamlit as st
 
 API_URL = os.getenv("API_URL", "http://localhost:8000")
 
-st.set_page_config(page_title="TAN-TRADE Intelligence", page_icon="🥜", layout="wide")
-st.title("TAN-TRADE Buyer Intelligence")
+st.set_page_config(page_title="BAXEO TAN-TRADE Intelligence", page_icon="🥜", layout="wide")
+st.title("BAXEO TAN-TRADE Buyer Intelligence")
 st.caption("Find the next buyer worth your attention.")
 
 with st.sidebar:
@@ -80,7 +80,7 @@ if companies:
     st.download_button(
         "Download filtered buyers",
         data=table.drop(columns=["lead_score_components"]).to_csv(index=False).encode("utf-8"),
-        file_name="tan-trade-buyers.csv",
+        file_name="baxeo-tan-trade-buyers.csv",
         mime="text/csv",
     )
 

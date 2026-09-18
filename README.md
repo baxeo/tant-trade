@@ -1,4 +1,4 @@
-# TAN-TRADE Buyer Intelligence MVP
+# BAXEO TAN-TRADE Buyer Intelligence MVP
 
 Excel-to-PostgreSQL buyer import with a FastAPI API and Streamlit dashboard.
 
