@@ -14,6 +14,8 @@ Open:
 - API docs: http://localhost:8000/docs
 - Health check: http://localhost:8000/health
 
+The Vercel deployment serves a lightweight browser dashboard at `/` and the API under `/api`. For persistent production data on Vercel, set `DATABASE_URL` to a managed PostgreSQL database; the automatic SQLite fallback is only for local development or temporary previews.
+
 Upload an `.xlsx` or `.xls` workbook from the dashboard. The first worksheet is read automatically. Supported header aliases include:
 
 - Company: `company`, `company_name`, `buyer`, `buyer_name`, `business_name`, `name`

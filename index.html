@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TAN-TRADE Buyer Intelligence</title>
+  <style>
+    :root { --ink:#17211b; --muted:#68746d; --line:#d9e1db; --paper:#f6f8f4; --white:#fff; --green:#16734a; --amber:#d9822b; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:linear-gradient(135deg,#eef5ee,#f8f5ed); font:15px system-ui,-apple-system,Segoe UI,sans-serif; }
+    header { display:flex; justify-content:space-between; align-items:center; max-width:1180px; margin:auto; padding:28px 24px 20px; }
+    .brand { display:flex; gap:12px; align-items:center; font-weight:750; letter-spacing:.02em; }
+    .mark { display:grid; place-items:center; width:38px; height:38px; border-radius:12px; color:white; background:var(--green); font-size:20px; }
+    .status { color:var(--muted); font-size:13px; }
+    main { max-width:1180px; margin:auto; padding:20px 24px 60px; }
+    .intro { display:flex; justify-content:space-between; gap:24px; align-items:end; margin:24px 0 28px; }
+    h1 { max-width:650px; margin:0; font:700 clamp(32px,5vw,60px)/.98 Georgia,serif; letter-spacing:0; }
+    .intro p { max-width:310px; margin:0; color:var(--muted); line-height:1.55; }
+    .toolbar, .metric, .panel { border:1px solid var(--line); background:rgba(255,255,255,.82); box-shadow:0 14px 35px rgba(38,65,46,.06); }
+    .toolbar { display:flex; gap:12px; flex-wrap:wrap; padding:14px; border-radius:14px; }
+    input, select, button { border:1px solid var(--line); border-radius:8px; background:var(--white); color:var(--ink); padding:11px 13px; font:inherit; }
+    input { flex:1 1 220px; }
+    button { cursor:pointer; background:var(--green); border-color:var(--green); color:white; font-weight:650; }
+    button.secondary { background:transparent; color:var(--green); }
+    .metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:18px 0; }
+    .metric { padding:18px; border-radius:12px; }
+    .metric small { color:var(--muted); display:block; margin-bottom:8px; }
+    .metric strong { font-size:28px; }
+    .panel { overflow:hidden; border-radius:14px; }
+    .panel-title { display:flex; justify-content:space-between; align-items:center; padding:18px 20px; border-bottom:1px solid var(--line); }
+    .panel-title h2 { margin:0; font-size:17px; }
+    table { width:100%; border-collapse:collapse; }
+    th, td { padding:14px 20px; text-align:left; border-bottom:1px solid #edf1ed; }
+    th { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+    .badge { display:inline-block; padding:4px 8px; border-radius:99px; font-size:12px; font-weight:700; }
+    .high { color:#9c3d19; background:#fff0e8; } .medium { color:#8b5b0a; background:#fff6d9; } .low { color:var(--green); background:#e5f4ea; }
+    .empty, .error { padding:34px 20px; color:var(--muted); text-align:center; }
+    .error { color:#9c3d19; }
+    @media (max-width:700px) { header,.intro { align-items:flex-start; flex-direction:column; } .metrics { grid-template-columns:repeat(2,1fr); } .panel { overflow-x:auto; } table { min-width:720px; } }
+  </style>
+</head>
+<body>
+  <header><div class="brand"><span class="mark">↗</span><span>TAN-TRADE</span></div><span id="status" class="status">Connecting...</span></header>
+  <main>
+    <section class="intro"><div><h1>Know which buyer deserves your next call.</h1></div><p>A focused view of your cashew buyer pipeline, ranked by the signals already in your data.</p></section>
+    <section class="toolbar">
+      <input id="search" aria-label="Search buyers" placeholder="Search company name">
+      <input id="country" aria-label="Filter by country" placeholder="Country">
+      <select id="minimum" aria-label="Minimum score"><option value="0">Any score</option><option value="50">50+ score</option><option value="75">75+ priority</option></select>
+      <button id="refresh">Refresh</button>
+      <button id="download" class="secondary">Download CSV</button>
+    </section>
+    <section class="metrics"><div class="metric"><small>Buyers</small><strong id="buyers">0</strong></div><div class="metric"><small>Priority leads</small><strong id="priority">0</strong></div><div class="metric"><small>Average score</small><strong id="average">0</strong></div><div class="metric"><small>Countries</small><strong id="countries">0</strong></div></section>
+    <section class="panel"><div class="panel-title"><h2>Buyer pipeline</h2><span class="status">Sorted by lead score</span></div><div id="content" class="empty">Loading buyers...</div></section>
+  </main>
+  <script>
+    const state = { companies: [] };
+    const $ = (id) => document.getElementById(id);
+    function filtered() { const search=$('search').value.toLowerCase(), country=$('country').value.toLowerCase(), min=Number($('minimum').value); return state.companies.filter(c => (!search || c.name.toLowerCase().includes(search)) && (!country || (c.country||'').toLowerCase().includes(country)) && c.lead_score >= min).sort((a,b)=>b.lead_score-a.lead_score); }
+    function render() { const rows=filtered(); $('buyers').textContent=rows.length; $('priority').textContent=rows.filter(c=>c.lead_score>=75).length; $('average').textContent=rows.length ? Math.round(rows.reduce((a,c)=>a+c.lead_score,0)/rows.length) : 0; $('countries').textContent=new Set(rows.map(c=>c.country).filter(Boolean)).size; if(!rows.length){$('content').className='empty';$('content').textContent='No buyers match these filters.';return;} $('content').className=''; $('content').innerHTML='<table><thead><tr><th>Priority</th><th>Company</th><th>Country</th><th>Buyer type</th><th>Contact</th><th>Score</th></tr></thead><tbody>'+rows.map(c=>{const p=c.lead_score>=75?'high':c.lead_score>=50?'medium':'low';return `<tr><td><span class="badge ${p}">${p[0].toUpperCase()+p.slice(1)}</span></td><td><strong>${escapeHtml(c.name)}</strong></td><td>${escapeHtml(c.country||'—')}</td><td>${escapeHtml(c.buyer_type||'—')}</td><td>${escapeHtml(c.email||'—')}</td><td><strong>${Math.round(c.lead_score)}/100</strong></td></tr>`}).join('')+'</tbody></table>'; }
+    function escapeHtml(value){return String(value).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+    async function load(){ $('status').textContent='Loading...'; try{const response=await fetch('/api/leads?limit=500');if(!response.ok)throw new Error('API returned '+response.status);state.companies=await response.json();$('status').textContent='Live data connected';render();}catch(error){$('status').textContent='Connection problem';$('content').className='error';$('content').textContent='The API is not available yet. Deploy the API with the project or use the local Streamlit dashboard.';} }
+    $('refresh').onclick=load; ['search','country','minimum'].forEach(id=>$(id).oninput=render); $('download').onclick=()=>{const rows=filtered();const csv=['name,country,buyer_type,email,lead_score',...rows.map(c=>[c.name,c.country||'',c.buyer_type||'',c.email||'',c.lead_score].map(v=>'"'+String(v).replaceAll('"','""')+'"').join(','))].join('\n');const link=document.createElement('a');link.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));link.download='tan-trade-buyers.csv';link.click();}; load();
+  </script>
+</body>
+</html>
