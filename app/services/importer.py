@@ -40,7 +40,7 @@ def map_columns(columns: list[Any]) -> dict[str, str]:
 
 
 def import_excel(file_path: str | Path, session: Session) -> tuple[int, int, list[str]]:
-    frame = pd.read_excel(file_path)
+    frame = pd.read_csv(file_path) if Path(file_path).suffix.lower() == ".csv" else pd.read_excel(file_path)
     mapping = map_columns(list(frame.columns))
     if "name" not in mapping:
         raise ValueError("Excel file must contain a company, buyer, or name column")

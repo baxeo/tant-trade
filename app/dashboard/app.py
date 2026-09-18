@@ -20,7 +20,7 @@ with st.sidebar:
         st.error("API unavailable")
 
     st.subheader("Import buyers")
-    workbook = st.file_uploader("Choose an Excel workbook", type=["xlsx", "xls"])
+    workbook = st.file_uploader("Choose a CSV or Excel file", type=["csv", "xlsx", "xls"])
     if workbook and st.button("Import workbook", type="primary", use_container_width=True):
         with st.spinner("Importing and scoring buyers..."):
             response = requests.post(

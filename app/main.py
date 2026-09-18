@@ -58,8 +58,8 @@ def score_lead(payload: LeadScoreRequest) -> LeadScoreResponse:
 
 @app.post("/imports/excel", response_model=ImportResult)
 async def upload_excel(file: UploadFile = File(...), db: Session = Depends(get_db)) -> ImportResult:
-    if not file.filename or Path(file.filename).suffix.lower() not in {".xlsx", ".xls"}:
-        raise HTTPException(status_code=400, detail="Upload an .xlsx or .xls file")
+    if not file.filename or Path(file.filename).suffix.lower() not in {".csv", ".xlsx", ".xls"}:
+        raise HTTPException(status_code=400, detail="Upload a .csv, .xlsx, or .xls file")
     content = await file.read()
     with NamedTemporaryFile(suffix=Path(file.filename).suffix, delete=True) as temporary_file:
         temporary_file.write(content)

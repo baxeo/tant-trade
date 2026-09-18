@@ -1,0 +1,8 @@
+Company,Country,City,Website,Email,Phone,Buyer Type
+Kilimanjaro Nut Foods,Tanzania,Dar es Salaam,https://kilimanjaro.example,procurement@kilimanjaro.example,+255700000001,Processor
+East Africa Snack Co.,Kenya,Nairobi,https://eas-snack.example,buying@eas-snack.example,+254700000002,Manufacturer
+Mombasa Cashew Traders,Kenya,Mombasa,https://mombasa-cashew.example,,+254700000003,Importer
+Rwanda Natural Foods,Rwanda,Kigali,,hello@rwandanatural.example,,Distributor
+Zanzibar Organic Market,Tanzania,Zanzibar,,,,Retailer
+Kilimanjaro Nut Foods Ltd,Tanzania,Dar es Salaam,https://kilimanjaro.example,duplicate@kilimanjaro.example,+255700000099,Processor
+Acme Global Nuts,United Arab Emirates,Dubai,https://acme-global.example,trade@acme-global.example,+971500000006,Trader
